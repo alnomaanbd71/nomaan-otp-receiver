@@ -1,3 +1,4 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="bn">
 <head>
@@ -8,16 +9,42 @@
 </head>
 <body>
   <div class="container">
-    <h1>আপনার নম্বর নির্বাচন করুন এবং OTP দেখুন!</h1>
-    <select id="numberSelect">
-      <option value="">-- একটি নম্বর নির্বাচন করুন --</option>
-    </select>
-    <button onclick="fetchOTP()">দেখান OTP</button>
+    <h1>আপনার নম্বর লিখুন এবং OTP দেখুন!</h1>
+    <input type="text" id="numberInput" placeholder="আপনার মোবাইল নম্বর লিখুন" />
+    <button id="fetchButton">দেখান OTP</button>
     <div id="otpDisplay"></div>
   </div>
+
   <footer>
     <p>Developed by AL Nomaan (Certified Assessor & Trainer Under NSDA)</p>
   </footer>
-  <script src="app.js"></script>
+
+  <script>
+    document.getElementById('fetchButton').addEventListener('click', fetchOTP);
+
+    async function fetchOTP() {
+      const number = document.getElementById('numberInput').value.trim();
+      const otpDisplay = document.getElementById('otpDisplay');
+
+      if (!number) {
+        otpDisplay.innerHTML = '<p style="color: red;">অনুগ্রহ করে একটি বৈধ নম্বর লিখুন!</p>';
+        return;
+      }
+
+      otpDisplay.innerHTML = '<p>লোড হচ্ছে...</p>';
+      try {
+        const response = await fetch(`/api/otp?number=${encodeURIComponent(number)}`);
+        const data = await response.json();
+        if (data.success) {
+          otpDisplay.innerHTML = `<p>প্রাপ্ত OTP: <strong>${data.otp}</strong></p>`;
+        } else {
+          otpDisplay.innerHTML = '<p style="color: orange;">OTP পাওয়া যায়নি, অনুগ্রহ করে পরে চেষ্টা করুন।</p>';
+        }
+      } catch (error) {
+        console.error(error);
+        otpDisplay.innerHTML = '<p style="color: red;">সার্ভার এরর! পরে চেষ্টা করুন।</p>';
+      }
+    }
+  </script>
 </body>
 </html>
